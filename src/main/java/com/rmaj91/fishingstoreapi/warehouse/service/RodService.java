@@ -1,8 +1,8 @@
-package com.rmaj91.fishingstoreapi.service;
+package com.rmaj91.fishingstoreapi.warehouse.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.rmaj91.fishingstoreapi.model.Rod;
-import com.rmaj91.fishingstoreapi.repository.RodRespository;
+import com.rmaj91.fishingstoreapi.warehouse.model.Rod;
+import com.rmaj91.fishingstoreapi.warehouse.repository.RodRespository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

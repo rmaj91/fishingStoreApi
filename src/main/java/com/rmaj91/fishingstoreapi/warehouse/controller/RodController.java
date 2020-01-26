@@ -1,13 +1,11 @@
-package com.rmaj91.fishingstoreapi.controller;
+package com.rmaj91.fishingstoreapi.warehouse.controller;
 
-import com.rmaj91.fishingstoreapi.model.Rod;
-import com.rmaj91.fishingstoreapi.repository.RodRespository;
-import com.rmaj91.fishingstoreapi.service.RodService;
+import com.rmaj91.fishingstoreapi.warehouse.model.Rod;
+import com.rmaj91.fishingstoreapi.warehouse.service.RodService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -16,14 +14,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collection;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/v1/api/rods")
+@RequestMapping("/admin/v1/api/rods")
 @RequiredArgsConstructor
 public class RodController {
 
