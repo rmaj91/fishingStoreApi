@@ -19,7 +19,7 @@ public class Rod {
 
     private String brand;
     private String model;
-    private String length;
+    private double rodLength;
     private String castingWeight;
     private String description;
     @JsonProperty("pricePLN")
