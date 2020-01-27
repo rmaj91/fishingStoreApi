@@ -45,7 +45,7 @@ public class RodItemService {
         Map rodItemToUpdateMap = objectMapper.convertValue(rodItemToUpdate,Map.class);
         rodItemUpdates.forEach(rodItemToUpdateMap::put);
         RodItem rodItem = objectMapper.convertValue(rodItemToUpdateMap,RodItem.class);
-        return rodItem;
+        return rodItemRepository.save(rodItem);
 
     }
 

@@ -49,6 +49,6 @@ public class RodService {
         Map rodToUpdateMap = objectMapper.convertValue(rodToUpdate,Map.class);
         rodUpdates.forEach(rodToUpdateMap::put);
         Rod rod = objectMapper.convertValue(rodToUpdateMap,Rod.class);
-        return rod;
+        return rodRepository.save(rod);
     }
 }
