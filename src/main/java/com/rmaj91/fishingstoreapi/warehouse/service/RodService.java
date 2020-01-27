@@ -1,8 +1,7 @@
 package com.rmaj91.fishingstoreapi.warehouse.service;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rmaj91.fishingstoreapi.warehouse.model.Rod;
-import com.rmaj91.fishingstoreapi.warehouse.repository.RodRespository;
+import com.rmaj91.fishingstoreapi.warehouse.repository.RodRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -14,37 +13,37 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class RodService {
 
-    private final RodRespository rodRespository;
+    private final RodRepository rodRepository;
     private final ObjectMapper objectMapper;
 
     public Rod create(Rod rod){
-        return rodRespository.save(rod);
+        return rodRepository.save(rod);
     }
 
     public Collection<Rod> readAll(){
-        return rodRespository.findAll();
+        return rodRepository.findAll();
     }
 
     public Rod read(Long id){
-        return rodRespository
+        return rodRepository
                 .findById(id)
                 .orElseThrow(()->new IllegalArgumentException("Rod with exact id not found"));
     }
 
     public void delete(Long id) {
-        rodRespository.deleteById(id);
+        rodRepository.deleteById(id);
     }
 
     public Rod update(Rod rod, Long id) {
-        Optional<Rod> rodById = rodRespository.findById(id);
+        Optional<Rod> rodById = rodRepository.findById(id);
         if(!rodById.isPresent()){
             throw new IllegalArgumentException("Rod with exact id not found");
         }
-        return rodRespository.save(rod);
+        return rodRepository.save(rod);
     }
 
     public Rod patch(Map<String, String> rodUpdates, long id) {
-        Rod rodToUpdate = rodRespository
+        Rod rodToUpdate = rodRepository
                 .findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Rod with exact id not found"));
         Map rodToUpdateMap = objectMapper.convertValue(rodToUpdate,Map.class);

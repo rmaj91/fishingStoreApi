@@ -1,8 +1,7 @@
-package com.rmaj91.fishingstoreapi.model;
+package com.rmaj91.fishingstoreapi.warehouse.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
-import lombok.Generated;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;

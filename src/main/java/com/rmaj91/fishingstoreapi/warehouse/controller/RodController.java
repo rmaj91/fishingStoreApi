@@ -20,7 +20,7 @@ import java.util.Collection;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/admin/v1/api/rods")
+@RequestMapping("/v1/admin/api/rods")
 @RequiredArgsConstructor
 public class RodController {
 
