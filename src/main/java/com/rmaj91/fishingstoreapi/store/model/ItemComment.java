@@ -16,7 +16,6 @@ public class ItemComment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne
     private Item item;
     private String content;
     private ItemRate itemRate;
