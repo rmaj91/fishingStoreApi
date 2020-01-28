@@ -3,14 +3,20 @@ package com.rmaj91.fishingstoreapi.warehouse.service;
 import com.rmaj91.fishingstoreapi.warehouse.model.Rod;
 import com.rmaj91.fishingstoreapi.warehouse.repository.RodRepository;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class RodServiceTest {
 
@@ -66,7 +72,7 @@ class RodServiceTest {
     }
 
     @Test
-    void update() {
+    void whenUpdateFail() {
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
             rodService.update(rod, 1L);
         });
@@ -75,12 +81,32 @@ class RodServiceTest {
     }
 
     @Test
-    void patch() {
+    void whenUpdateSuccessful(){
+        // given
+        when(rodRepository.findById(1L)).thenReturn(Optional.of(rod));
+
+        // when
+        rodService.update(rod,1L);
+
+        // then
+        verify(rodRepository,times(1)).findById(1L);
+        verify(rodRepository,times(1)).save(rod);
+    }
+
+    @Test
+    void patchFail() {
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            fail("Not implemented");
+            Map<String, String> rodUpdates = new HashMap<>();
+            rodService.patch(rodUpdates,1L);
         });
         assertEquals(exception.getMessage(),"Rod with exact id not found");
         verify(rodRepository,times(1)).findById(1L);
+    }
+
+    @Disabled
+    @Test
+    void patchSuccessful() {
+
     }
 
 }
