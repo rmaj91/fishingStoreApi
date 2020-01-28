@@ -77,7 +77,7 @@ class RodServiceTest {
     @Test
     void patch() {
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            rodService.update(rod, 1L);
+            fail("Not implemented");
         });
         assertEquals(exception.getMessage(),"Rod with exact id not found");
         verify(rodRepository,times(1)).findById(1L);

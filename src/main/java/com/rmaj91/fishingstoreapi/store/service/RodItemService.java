@@ -23,7 +23,7 @@ public class RodItemService {
     public RodItem read(long id){
         RodItem rodItem = rodItemRepository
                 .findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("no such RodItem with this id"));
+                .orElseThrow(() -> new IllegalArgumentException("No such RodItem with this id"));
         return rodItem;
     }
 
@@ -33,7 +33,7 @@ public class RodItemService {
 
     public RodItem update(RodItem rodItem, long id){
         if(!rodItemRepository.existsById(id)) {
-            throw new IllegalArgumentException("no such RodItem with this id");
+            throw new IllegalArgumentException("No such RodItem with this id");
         }
         return rodItemRepository.save(rodItem);
     }
@@ -41,7 +41,7 @@ public class RodItemService {
     public RodItem patch(Map<String, Object> rodItemUpdates, long id) {
         RodItem rodItemToUpdate = rodItemRepository
                 .findById(id)
-                .orElseThrow(()->new IllegalArgumentException("no such RodItem with this id"));
+                .orElseThrow(()->new IllegalArgumentException("No such RodItem with this id"));
         Map rodItemToUpdateMap = objectMapper.convertValue(rodItemToUpdate,Map.class);
         rodItemUpdates.forEach(rodItemToUpdateMap::put);
         RodItem rodItem = objectMapper.convertValue(rodItemToUpdateMap,RodItem.class);
