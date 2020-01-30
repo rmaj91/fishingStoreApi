@@ -1,6 +1,5 @@
 package com.rmaj91.fishingstoreapi.warehouse.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 import javax.persistence.Entity;
@@ -21,7 +20,4 @@ public class Rod {
     private double rodLength;
     private String castingWeight;
     private String description;
-    @JsonProperty("pricePLN")
-    private double pricePln;
-
 }
