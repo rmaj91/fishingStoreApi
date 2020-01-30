@@ -13,5 +13,5 @@ public class Item {
     private double price;
     private int quantity;
     @OneToMany(orphanRemoval = true)
-    private Collection<itemReview> reviews;
+    private Collection<ItemReview> reviews;
 }
