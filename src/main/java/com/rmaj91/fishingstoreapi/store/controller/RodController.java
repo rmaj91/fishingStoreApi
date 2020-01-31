@@ -1,8 +1,7 @@
 package com.rmaj91.fishingstoreapi.store.controller;
 
-import com.rmaj91.fishingstoreapi.store.model.RodItem;
-import com.rmaj91.fishingstoreapi.store.service.RodItemService;
-import com.rmaj91.fishingstoreapi.warehouse.model.Rod;
+import com.rmaj91.fishingstoreapi.store.model.Rod;
+import com.rmaj91.fishingstoreapi.store.service.RodService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -23,53 +22,53 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/v1/api/rodItems")
-public class RodItemController {
+public class RodController {
 
-    private final RodItemService rodItemService;
+    private final RodService rodService;
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<RodItem>> readAll() {
-        List<RodItem> rodItems = rodItemService.readAll();
+    public ResponseEntity<List<Rod>> readAll() {
+        List<Rod> rods = rodService.readAll();
         return ResponseEntity
                 .ok()
-                .body(rodItems);
+                .body(rods);
     }
 
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<RodItem> read(@PathVariable long id) {
-        RodItem rodItem = rodItemService.read(id);
+    public ResponseEntity<Rod> read(@PathVariable long id) {
+        Rod rod = rodService.read(id);
         return ResponseEntity
                 .ok()
-                .body(rodItem);
+                .body(rod);
     }
 
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<RodItem> create(@RequestBody RodItem rodItem) {
-        RodItem createdRodItem = rodItemService.create(rodItem);
+    public ResponseEntity<Rod> create(@RequestBody Rod rod) {
+        Rod createdRod = rodService.create(rod);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(createdRodItem);
+                .body(createdRod);
     }
 
     @PutMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<RodItem> update(@RequestBody RodItem rodItem, @PathVariable long id) {
-        RodItem updatedRodItem = rodItemService.update(rodItem, id);
+    public ResponseEntity<Rod> update(@RequestBody Rod rod, @PathVariable long id) {
+        Rod updatedRod = rodService.update(rod, id);
         return ResponseEntity
                 .ok()
-                .body(updatedRodItem);
+                .body(updatedRod);
     }
 
     @PatchMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<RodItem> patch(@RequestBody Map<String, Object> rodItemUpdates, @PathVariable long id) {
-        RodItem rodItem = rodItemService.patch(rodItemUpdates, id);
+    public ResponseEntity<Rod> patch(@RequestBody Map<String, Object> rodItemUpdates, @PathVariable long id) {
+        Rod rod = rodService.patch(rodItemUpdates, id);
         return ResponseEntity
                 .ok()
-                .body(rodItem);
+                .body(rod);
     }
 
     @DeleteMapping(path = "/{id}")
     public ResponseEntity delete(@PathVariable long id){
-        rodItemService.delete(id);
+        rodService.delete(id);
         return ResponseEntity
                 .status(HttpStatus.NO_CONTENT)
                 .build();

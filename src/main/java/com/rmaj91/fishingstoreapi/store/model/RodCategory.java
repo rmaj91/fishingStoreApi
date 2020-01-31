@@ -1,6 +1,6 @@
 package com.rmaj91.fishingstoreapi.store.model;
 
-public enum RodItemCategory {
+public enum RodCategory {
     SPINNING,
     CASTING,
     TELESCOPIC

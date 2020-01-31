@@ -1,7 +1,7 @@
 package com.rmaj91.fishingstoreapi.store.service;
 
-import com.rmaj91.fishingstoreapi.store.model.RodItem;
-import com.rmaj91.fishingstoreapi.store.repository.RodItemRepository;
+import com.rmaj91.fishingstoreapi.store.model.Rod;
+import com.rmaj91.fishingstoreapi.store.repository.RodRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -18,57 +18,57 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-class RodItemServiceTest {
+class RodServiceTest {
 
-    private RodItem rodItem;
+    private Rod rod;
 
     @Mock
-    private RodItemRepository rodItemRepository;
+    private RodRepository rodRepository;
 
     @InjectMocks
-    private RodItemService rodItemService;
+    private RodService rodService;
 
     @BeforeEach
     void initAll(){
-        rodItem = new RodItem();
+        rod = new Rod();
         MockitoAnnotations.initMocks(this);
     }
 
     @Test
     void create(){
         // when
-        rodItemService.create(rodItem);
+        rodService.create(rod);
 
         // then
-        verify(rodItemRepository,times(1)).save(rodItem);
+        verify(rodRepository,times(1)).save(rod);
     }
 
     @Test
     void readAll(){
         // when
-        rodItemService.readAll();
+        rodService.readAll();
 
         // then
-        verify(rodItemRepository,times(1)).findAll();
+        verify(rodRepository,times(1)).findAll();
     }
 
     @Test
     void read(){
         // when
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, (() -> {
-            rodItemService.read(1L);
+            rodService.read(1L);
         }));
 
         // then
         assertEquals(exception.getMessage(),"No such RodItem with this id");
-        verify(rodItemRepository,times(1)).findById(1L);
+        verify(rodRepository,times(1)).findById(1L);
     }
 
     @Test
     void whenUpdatesFail(){
         // when
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, (() -> {
-            rodItemService.update(rodItem,1L);
+            rodService.update(rod,1L);
         }));
 
         // then
@@ -78,14 +78,14 @@ class RodItemServiceTest {
     @Test
     void whenUpdateSuccessful(){
         // given
-        when(rodItemRepository.existsById(1L)).thenReturn(true);
+        when(rodRepository.existsById(1L)).thenReturn(true);
 
         // when
-        rodItemService.update(rodItem,1L);
+        rodService.update(rod,1L);
 
         // then
-        verify(rodItemRepository,times(1)).existsById(1L);
-        verify(rodItemRepository,times(1)).save(rodItem);
+        verify(rodRepository,times(1)).existsById(1L);
+        verify(rodRepository,times(1)).save(rod);
     }
 
     @Test
@@ -93,12 +93,12 @@ class RodItemServiceTest {
         // when
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, (() -> {
             Map<String, Object> rodItemUpdates = new HashMap<>();
-            rodItemService.patch(rodItemUpdates,1L);
+            rodService.patch(rodItemUpdates,1L);
         }));
 
         // then
         assertEquals(exception.getMessage(),"No such RodItem with this id");
-        verify(rodItemRepository,times(1)).findById(1L);
+        verify(rodRepository,times(1)).findById(1L);
     }
 
     @Disabled
@@ -109,10 +109,10 @@ class RodItemServiceTest {
     @Test
     void delete() {
         // when
-        rodItemService.delete(1L);
+        rodService.delete(1L);
 
         // then
-        verify(rodItemRepository,times(1)).deleteById(1L);
+        verify(rodRepository,times(1)).deleteById(1L);
     }
 
 
