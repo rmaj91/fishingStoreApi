@@ -40,13 +40,12 @@ public class ItemController {
     }
 
     @GetMapping(path = "/category/{category}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Item>> readAllByCategory(@PathVariable String category, @RequestParam int page,
-                                                        @RequestParam int size) {
+    public ResponseEntity<List<Item>> readAllByCategory(@PathVariable String category, @RequestParam int page, @RequestParam int size) {
         List<Item> items = new ArrayList<>();
         Pageable pageable = PageRequest.of(page, size);
-        for (Category cat : Category.values()) {
-            if (cat.toString().toLowerCase().equals(category)) {
-                items = itemService.readAllByCategory(cat, pageable);
+        for (Category itemCategory : Category.values()) {
+            if (itemCategory.toString().toLowerCase().equals(category)) {
+                items = itemService.readAllByCategory(itemCategory, pageable);
                 break;
             }
         }
@@ -58,7 +57,7 @@ public class ItemController {
     @GetMapping(path = "/category/all-categories", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<Item>> readAllByCategory(@RequestParam int page, @RequestParam int size) {
         Pageable pageable = PageRequest.of(page, size);
-        List<Item> items = itemService.readAllPageable(pageable);
+        List<Item> items = itemService.readAll(pageable);
         return ResponseEntity
                 .ok()
                 .body(items);

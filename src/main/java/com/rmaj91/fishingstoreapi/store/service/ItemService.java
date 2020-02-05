@@ -56,7 +56,7 @@ public class ItemService {
         itemRepository.deleteById(id);
     }
 
-    public List<Item> readAllPageable(Pageable pageable){
+    public List<Item> readAll(Pageable pageable){
         return itemRepository.findAll(pageable).toList();
     }
 
