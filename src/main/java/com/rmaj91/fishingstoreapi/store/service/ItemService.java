@@ -66,7 +66,7 @@ public class ItemService {
 
     public int getNumberOfItemsInCategory(Category category) {
         List<Item> items = new ArrayList<>();
-        itemRepository.findAll().forEach(items::add);
+        itemRepository.findByCategory(category).forEach(items::add);
         return items.size();
     }
 }
