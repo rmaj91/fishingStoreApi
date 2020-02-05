@@ -6,6 +6,7 @@ import com.rmaj91.fishingstoreapi.store.repository.ItemRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -28,7 +29,9 @@ public class ItemService {
     }
 
     public List<Item> readAll(){
-        return itemRepository.findAll();
+        List<Item> items = new ArrayList<>();
+        itemRepository.findAll().forEach(items::add);
+        return items;
     }
 
     public Item update(Item item, long id){
