@@ -1,9 +1,11 @@
 package com.rmaj91.fishingstoreapi.store.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.rmaj91.fishingstoreapi.store.model.Category;
 import com.rmaj91.fishingstoreapi.store.model.Item;
 import com.rmaj91.fishingstoreapi.store.repository.ItemRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -49,10 +51,16 @@ public class ItemService {
         rodItemUpdates.forEach(rodItemToUpdateMap::put);
         Item item = objectMapper.convertValue(rodItemToUpdateMap, Item.class);
         return itemRepository.save(item);
-
     }
-
     public void delete(long id){
         itemRepository.deleteById(id);
+    }
+
+    public List<Item> readAllPageable(Pageable pageable){
+        return itemRepository.findAll(pageable).toList();
+    }
+
+    public List<Item> readAllByCategory(Category category, Pageable pageable) {
+        return itemRepository.findByCategory(category,pageable);
     }
 }

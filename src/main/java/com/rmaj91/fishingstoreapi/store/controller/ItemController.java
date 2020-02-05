@@ -1,8 +1,11 @@
 package com.rmaj91.fishingstoreapi.store.controller;
 
+import com.rmaj91.fishingstoreapi.store.model.Category;
 import com.rmaj91.fishingstoreapi.store.model.Item;
 import com.rmaj91.fishingstoreapi.store.service.ItemService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -36,13 +40,21 @@ public class ItemController {
     }
 
     @GetMapping(path = "/category/{category}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Item>> readAllByCategory(@PathVariable String category) {
-
-        List<Item> items = itemService.readAll()
-                .stream()
-                .filter(i -> filterByCategory(category, i))
-                .collect(Collectors.toList());
-
+    public ResponseEntity<List<Item>> readAllByCategory(@PathVariable String category, @RequestParam int page) {
+        List<Item> items;
+        Pageable pageable = PageRequest.of(page,12);
+        if(category.equals("all-categories")){
+            items = itemService.readAllPageable(pageable);
+        }else{
+            Category categoryToService = null;
+            for(Category cat: Category.values()){
+                if(cat.toString().toLowerCase().equals(category)){
+                    categoryToService = cat;
+                    break;
+                }
+            }
+            items = itemService.readAllByCategory(categoryToService,pageable);
+        }
         return ResponseEntity
                 .ok()
                 .body(items);
