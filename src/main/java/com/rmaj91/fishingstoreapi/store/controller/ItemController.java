@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -41,20 +42,23 @@ public class ItemController {
     @GetMapping(path = "/category/{category}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<Item>> readAllByCategory(@PathVariable String category, @RequestParam int page,
                                                         @RequestParam int size) {
-        List<Item> items;
+        List<Item> items = new ArrayList<>();
         Pageable pageable = PageRequest.of(page, size);
-        if (category.equals("all-categories")) {
-            items = itemService.readAllPageable(pageable);
-        } else {
-            Category categoryToService = null;
-            for (Category cat : Category.values()) {
-                if (cat.toString().toLowerCase().equals(category)) {
-                    categoryToService = cat;
-                    break;
-                }
+        for (Category cat : Category.values()) {
+            if (cat.toString().toLowerCase().equals(category)) {
+                items = itemService.readAllByCategory(cat, pageable);
+                break;
             }
-            items = itemService.readAllByCategory(categoryToService, pageable);
         }
+        return ResponseEntity
+                .ok()
+                .body(items);
+    }
+
+    @GetMapping(path = "/category/all-categories", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<Item>> readAllByCategory(@RequestParam int page, @RequestParam int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        List<Item> items = itemService.readAllPageable(pageable);
         return ResponseEntity
                 .ok()
                 .body(items);
@@ -63,16 +67,17 @@ public class ItemController {
     @GetMapping(path = "/category/{category}/pages/{size}")
     public int getNumberOfPagesInCategory(@PathVariable String category, @PathVariable int size) {
         int pages = 1;
-        if(category.equals("all-categories")){
-            pages = itemService.readAll().size()/size+1;
-        }else{
-            for (Category cat : Category.values()) {
-                if (cat.toString().toLowerCase().equals(category)) {
-                    pages = itemService.getNumberOfItemsInCategory(cat) / size + 1;
-                }
+        for (Category cat : Category.values()) {
+            if (cat.toString().toLowerCase().equals(category)) {
+                pages = itemService.getNumberOfItemsInCategory(cat) / size + 1;
             }
         }
         return pages;
+    }
+
+    @GetMapping(path = "/category/all-categories/pages/{size}")
+    public int getNumberOfPages(@PathVariable int size) {
+        return itemService.readAll().size() / size + 1;
     }
 
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
