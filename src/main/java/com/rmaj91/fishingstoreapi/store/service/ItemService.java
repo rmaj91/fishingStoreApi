@@ -63,4 +63,10 @@ public class ItemService {
     public List<Item> readAllByCategory(Category category, Pageable pageable) {
         return itemRepository.findByCategory(category,pageable);
     }
+
+    public int getNumberOfItemsInCategory(Category category) {
+        List<Item> items = new ArrayList<>();
+        itemRepository.findAll().forEach(items::add);
+        return items.size();
+    }
 }

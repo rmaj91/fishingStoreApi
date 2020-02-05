@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -40,28 +39,40 @@ public class ItemController {
     }
 
     @GetMapping(path = "/category/{category}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Item>> readAllByCategory(@PathVariable String category, @RequestParam int page) {
+    public ResponseEntity<List<Item>> readAllByCategory(@PathVariable String category, @RequestParam int page,
+                                                        @RequestParam int size) {
         List<Item> items;
-        Pageable pageable = PageRequest.of(page,12);
-        if(category.equals("all-categories")){
+        Pageable pageable = PageRequest.of(page, size);
+        if (category.equals("all-categories")) {
             items = itemService.readAllPageable(pageable);
-        }else{
+        } else {
             Category categoryToService = null;
-            for(Category cat: Category.values()){
-                if(cat.toString().toLowerCase().equals(category)){
+            for (Category cat : Category.values()) {
+                if (cat.toString().toLowerCase().equals(category)) {
                     categoryToService = cat;
                     break;
                 }
             }
-            items = itemService.readAllByCategory(categoryToService,pageable);
+            items = itemService.readAllByCategory(categoryToService, pageable);
         }
         return ResponseEntity
                 .ok()
                 .body(items);
     }
 
-    private boolean filterByCategory(String category, Item i) {
-        return category.equals("all-categories") || i.getCategory().toString().toLowerCase().equals(category);
+    @GetMapping(path = "/category/{category}/pages/{size}")
+    public int getNumberOfPagesInCategory(@PathVariable String category, @PathVariable int size) {
+        int pages = 1;
+        if(category.equals("all-categories")){
+            pages = itemService.readAll().size()/size+1;
+        }else{
+            for (Category cat : Category.values()) {
+                if (cat.toString().toLowerCase().equals(category)) {
+                    pages = itemService.getNumberOfItemsInCategory(cat) / size + 1;
+                }
+            }
+        }
+        return pages;
     }
 
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
