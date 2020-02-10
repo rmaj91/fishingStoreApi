@@ -2,6 +2,7 @@ package com.rmaj91.fishingstoreapi.store.controller;
 
 import com.rmaj91.fishingstoreapi.security.AuthRequest;
 import com.rmaj91.fishingstoreapi.security.JwtResponse;
+import com.rmaj91.fishingstoreapi.security.JwtUtil;
 import com.rmaj91.fishingstoreapi.store.model.User;
 import com.rmaj91.fishingstoreapi.store.service.UserService;
 import lombok.AllArgsConstructor;
@@ -22,7 +23,8 @@ import java.util.Optional;
 public class AuthController {
 
     private final UserService userService;
-    private PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
 
     @PostMapping("/register")
     public ResponseEntity<User> register(@RequestBody User user) {
@@ -38,15 +40,19 @@ public class AuthController {
     public ResponseEntity<JwtResponse> login(@RequestBody AuthRequest authRequest) {
         Optional<User> userByEmail = userService.findByEmail(authRequest.getEmail());
         String requestPassword = authRequest.getPassword();
-        Optional<JwtResponse> jwtResponse = Optional.empty();
+        ResponseEntity<JwtResponse> responseEntity;
         if (userByEmail.isPresent() && passwordEncoder.matches(requestPassword, userByEmail.get().getPassword())) {
-            jwtResponse = Optional.of(
-                    JwtResponse.builder()
-                            .token("token")
-                            .expiredAt(new Date()).build());
+            String token = jwtUtil.generateToken(userByEmail.get());
+
+            JwtResponse jwtResponse = JwtResponse.builder()
+                    .token(token)
+                    .expiredAt(jwtUtil.getExpirationDateFromToken(token))
+                    .build();
+            responseEntity = ResponseEntity.status(HttpStatus.OK).body(jwtResponse);
+        } else {
+            responseEntity = ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        return jwtResponse.isPresent() ?
-                ResponseEntity.status(HttpStatus.OK).body(jwtResponse.get()) : ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        return responseEntity;
     }
 
 }
