@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -34,9 +35,8 @@ public class ItemController {
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<Item>> readAll() {
         List<Item> items = itemService.readAll();
-        return ResponseEntity
-                .ok()
-                .body(items);
+        return items.isEmpty() ?
+                ResponseEntity.status(HttpStatus.NOT_FOUND).build() : ResponseEntity.ok().body(items);
     }
 
     @GetMapping(path = "/category/{category}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -49,18 +49,16 @@ public class ItemController {
                 break;
             }
         }
-        return ResponseEntity
-                .ok()
-                .body(items);
+        return items.isEmpty() ?
+                ResponseEntity.status(HttpStatus.NOT_FOUND).build() : ResponseEntity.ok().body(items);
     }
 
     @GetMapping(path = "/category/all-categories", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<Item>> readAllByCategory(@RequestParam int page, @RequestParam int size) {
         Pageable pageable = PageRequest.of(page, size);
         List<Item> items = itemService.readAll(pageable);
-        return ResponseEntity
-                .ok()
-                .body(items);
+        return items.isEmpty() ?
+                ResponseEntity.status(HttpStatus.NOT_FOUND).build() : ResponseEntity.ok().body(items);
     }
 
     @GetMapping(path = "/category/{category}/pages/{size}")
@@ -75,16 +73,15 @@ public class ItemController {
     }
 
     @GetMapping(path = "/category/all-categories/pages/{size}")
-    public int getNumberOfPages(@PathVariable int size) {
+    public int getNumberOfPagesInAllCategories(@PathVariable int size) {
         return itemService.readAll().size() / size + 1;
     }
 
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Item> read(@PathVariable long id) {
-        Item item = itemService.read(id);
-        return ResponseEntity
-                .ok()
-                .body(item);
+        Optional<Item> item = Optional.ofNullable(itemService.read(id));
+        return item.isPresent() ?
+                ResponseEntity.ok().body(item.get()) : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
@@ -97,25 +94,22 @@ public class ItemController {
 
     @PutMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Item> update(@RequestBody Item item, @PathVariable long id) {
-        Item updatedItem = itemService.update(item, id);
-        return ResponseEntity
-                .ok()
-                .body(updatedItem);
+        Optional<Item> updatedItem = itemService.update(item, id);
+        return updatedItem.isPresent() ?
+                ResponseEntity.ok().body(updatedItem.get()) : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
     @PatchMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Item> patch(@RequestBody Map<String, Object> rodItemUpdates, @PathVariable long id) {
-        Item item = itemService.patch(rodItemUpdates, id);
-        return ResponseEntity
-                .ok()
-                .body(item);
+        Optional<Item> patchedItem = itemService.patch(rodItemUpdates, id);
+        return patchedItem.isPresent() ?
+                ResponseEntity.ok().body(patchedItem.get()) : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
     @DeleteMapping(path = "/{id}")
-    public ResponseEntity delete(@PathVariable long id) {
+    public ResponseEntity<?> delete(@PathVariable long id) {
         itemService.delete(id);
-        return ResponseEntity
-                .status(HttpStatus.NO_CONTENT)
-                .build();
+        return itemService.delete(id) ?
+                ResponseEntity.status(HttpStatus.NO_CONTENT).build() : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 }
