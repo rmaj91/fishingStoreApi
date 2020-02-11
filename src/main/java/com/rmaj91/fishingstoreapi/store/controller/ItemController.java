@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -43,14 +44,13 @@ public class ItemController {
     public ResponseEntity<List<Item>> readAllByCategory(@PathVariable String category, @RequestParam int page, @RequestParam int size) {
         List<Item> items = new ArrayList<>();
         Pageable pageable = PageRequest.of(page, size);
-        for (Category itemCategory : Category.values()) {
-            if (itemCategory.toString().toLowerCase().equals(category)) {
-                items = itemService.readAllByCategory(itemCategory, pageable);
-                break;
-            }
-        }
-        return items.isEmpty() ?
-                ResponseEntity.status(HttpStatus.NOT_FOUND).build() : ResponseEntity.ok().body(items);
+
+        return Arrays.stream(Category.values())
+                .filter(cat -> cat.toString().toLowerCase().equals(category))
+                .findFirst()
+                .map(cos -> itemService.readAllByCategory(cos,pageable))
+                .map(list->ResponseEntity.ok().body(list))
+                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     @GetMapping(path = "/category/all-categories", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -63,13 +63,11 @@ public class ItemController {
 
     @GetMapping(path = "/category/{category}/pages/{size}")
     public int getNumberOfPagesInCategory(@PathVariable String category, @PathVariable int size) {
-        int pages = 1;
-        for (Category cat : Category.values()) {
-            if (cat.toString().toLowerCase().equals(category)) {
-                pages = itemService.getNumberOfItemsInCategory(cat) / size + 1;
-            }
-        }
-        return pages;
+        return Arrays.stream(Category.values())
+                .filter(cat -> cat.toString().toLowerCase().equals(category))
+                .map(cat->getNumberOfPages(cat,size))
+                .findFirst()
+                .get();
     }
 
     @GetMapping(path = "/category/all-categories/pages/{size}")
@@ -80,8 +78,9 @@ public class ItemController {
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Item> read(@PathVariable long id) {
         Optional<Item> item = Optional.ofNullable(itemService.read(id));
-        return item.isPresent() ?
-                ResponseEntity.ok().body(item.get()) : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        return item
+                .map(value -> ResponseEntity.ok().body(value))
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
@@ -95,15 +94,17 @@ public class ItemController {
     @PutMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Item> update(@RequestBody Item item, @PathVariable long id) {
         Optional<Item> updatedItem = itemService.update(item, id);
-        return updatedItem.isPresent() ?
-                ResponseEntity.ok().body(updatedItem.get()) : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        return updatedItem
+                .map(value -> ResponseEntity.ok().body(value))
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     @PatchMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Item> patch(@RequestBody Map<String, Object> rodItemUpdates, @PathVariable long id) {
         Optional<Item> patchedItem = itemService.patch(rodItemUpdates, id);
-        return patchedItem.isPresent() ?
-                ResponseEntity.ok().body(patchedItem.get()) : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        return patchedItem
+                .map(item -> ResponseEntity.ok().body(item))
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     @DeleteMapping(path = "/{id}")
@@ -111,5 +112,9 @@ public class ItemController {
         itemService.delete(id);
         return itemService.delete(id) ?
                 ResponseEntity.status(HttpStatus.NO_CONTENT).build() : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
+
+    private int getNumberOfPages(Category cat,int size) {
+        return itemService.getNumberOfItemsInCategory(cat)/size+1;
     }
 }
