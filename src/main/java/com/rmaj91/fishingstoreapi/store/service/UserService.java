@@ -17,7 +17,8 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     public boolean existByEmail(String email) {
-        return userRepository.findByEmail(email).isPresent();
+        Optional<User> byEmail = Optional.ofNullable(userRepository.findByEmail(email));
+        return byEmail.isPresent();
     }
 
     public User create(User user){
@@ -27,7 +28,7 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public Optional<User> findByEmail(String email){
+    public User findByEmail(String email){
         return userRepository.findByEmail(email);
     }
 }

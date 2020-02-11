@@ -38,23 +38,23 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<JwtResponse> login(@RequestBody AuthRequest authRequest) {
-        Optional<User> userByEmail = userService.findByEmail(authRequest.getEmail());
+        Optional<User> userByEmail = Optional.ofNullable(userService.findByEmail(authRequest.getEmail()));
         String requestPassword = authRequest.getPassword();
-        ResponseEntity<JwtResponse> responseEntity;
-        if (userByEmail.isPresent() && passwordEncoder.matches(requestPassword, userByEmail.get().getPassword())) {
-            String token = jwtUtil.generateToken(userByEmail.get());
 
-            JwtResponse jwtResponse = JwtResponse.builder()
-                    .token(token)
-                    .expiredAt(jwtUtil.getExpirationDateFromToken(token))
-                    .build();
-            responseEntity = ResponseEntity.status(HttpStatus.OK).body(jwtResponse);
-        } else {
-            responseEntity = ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-        return responseEntity;
+        return userByEmail
+                .filter(user -> passwordEncoder.matches(requestPassword, userByEmail.get().getPassword()))
+                .map(user -> getJwtResponse(userByEmail.get()))
+                .orElse(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
     }
 
+    private ResponseEntity<JwtResponse> getJwtResponse(User userByEmail) {
+        String token = jwtUtil.generateToken(userByEmail);
+        JwtResponse jwtResponse = JwtResponse.builder()
+                .token(token)
+                .expiredAt(jwtUtil.getExpirationDateFromToken(token))
+                .build();
+        return ResponseEntity.status(HttpStatus.OK).body(jwtResponse);
+    }
 }
 
 
