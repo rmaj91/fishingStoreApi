@@ -27,22 +27,16 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<User> register(@RequestBody User user) {
-        Optional<User> createdUser = Optional.empty();
-        if (!userService.existByEmail(user.getEmail())) {
-            createdUser = Optional.of(userService.create(user));
-        }
-        return createdUser.isPresent() ?
-                ResponseEntity.status(HttpStatus.CREATED).body(createdUser.get()) : ResponseEntity.status(HttpStatus.CONFLICT).build();
+        return userService.findByEmail(user.getEmail())
+                .<ResponseEntity<User>>map(u -> ResponseEntity.status(HttpStatus.CONFLICT).build())
+                .orElseGet(() -> ResponseEntity.ok().body(userService.create(user)));
     }
 
     @PostMapping("/login")
     public ResponseEntity<JwtResponse> login(@RequestBody AuthRequest authRequest) {
-        Optional<User> userByEmail = Optional.ofNullable(userService.findByEmail(authRequest.getEmail()));
-        String requestPassword = authRequest.getPassword();
-
-        return userByEmail
-                .filter(user -> passwordEncoder.matches(requestPassword, userByEmail.get().getPassword()))
-                .map(user -> getJwtResponse(userByEmail.get()))
+        return userService.findByEmail(authRequest.getEmail())
+                .filter(user -> passwordEncoder.matches(authRequest.getPassword(), user.getPassword()))
+                .map(this::getJwtResponse)
                 .orElse(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
     }
 
