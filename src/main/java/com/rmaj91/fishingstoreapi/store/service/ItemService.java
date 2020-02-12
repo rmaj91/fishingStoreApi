@@ -24,11 +24,8 @@ public class ItemService {
         return itemRepository.save(item);
     }
 
-    public Item read(long id) {
-        Item item = itemRepository
-                .findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("No such item with this id"));
-        return item;
+    public Optional<Item> read(long id) {
+        return itemRepository.findById(id);
     }
 
     public List<Item> readAll() {
@@ -38,31 +35,22 @@ public class ItemService {
     }
 
     public Optional<Item> update(Item item, long id) {
-        Optional<Item> updatedItem = Optional.empty();
-        if (itemRepository.existsById(id)) {
-            updatedItem = Optional.of(itemRepository.save(item));
-        }
-        return updatedItem;
+        return itemRepository.findById(id)
+                .map(it -> itemRepository.save(item));
     }
 
     public Optional<Item> patch(Map<String, Object> rodItemUpdates, long id) {
-        Optional<Item> itemToUpdate = itemRepository.findById(id);
-        if (itemToUpdate.isPresent()) {
-            Map rodItemToUpdateMap = objectMapper.convertValue(itemToUpdate.get(), Map.class);
-            rodItemUpdates.forEach(rodItemToUpdateMap::put);
-            Item item = objectMapper.convertValue(rodItemToUpdateMap, Item.class);
-            itemToUpdate = Optional.of(itemRepository.save(item));
-        }
-        return itemToUpdate;
+        return itemRepository.findById(id)
+                .map(itemToPatch -> patchItem(itemToPatch, rodItemUpdates));
     }
 
     public boolean delete(long id) {
-        boolean deleted = false;
-        if (itemRepository.findById(id).isPresent()) {
-            itemRepository.deleteById(id);
-            deleted = true;
-        }
-        return deleted;
+        return itemRepository.findById(id)
+                .map(user -> {
+                    itemRepository.delete(user);
+                    return true;
+                })
+                .orElseGet(() -> false);
     }
 
     public List<Item> readAll(Pageable pageable) {
@@ -77,5 +65,12 @@ public class ItemService {
         List<Item> items = new ArrayList<>();
         itemRepository.findByCategory(category).forEach(items::add);
         return items.size();
+    }
+
+    private Item patchItem(Item itemToPatch, Map<String, Object> rodItemUpdates) {
+        Map rodItemToUpdateMap = objectMapper.convertValue(itemToPatch, Map.class);
+        rodItemUpdates.forEach(rodItemToUpdateMap::put);
+        Item item = objectMapper.convertValue(rodItemToUpdateMap, Item.class);
+        return itemRepository.save(item);
     }
 }

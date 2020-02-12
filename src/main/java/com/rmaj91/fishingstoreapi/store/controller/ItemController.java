@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -48,8 +47,8 @@ public class ItemController {
         return Arrays.stream(Category.values())
                 .filter(cat -> cat.toString().toLowerCase().equals(category))
                 .findFirst()
-                .map(cos -> itemService.readAllByCategory(cos,pageable))
-                .map(list->ResponseEntity.ok().body(list))
+                .map(cos -> itemService.readAllByCategory(cos, pageable))
+                .map(list -> ResponseEntity.ok().body(list))
                 .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
@@ -65,7 +64,7 @@ public class ItemController {
     public int getNumberOfPagesInCategory(@PathVariable String category, @PathVariable int size) {
         return Arrays.stream(Category.values())
                 .filter(cat -> cat.toString().toLowerCase().equals(category))
-                .map(cat->getNumberOfPages(cat,size))
+                .map(cat -> getNumberOfPages(cat, size))
                 .findFirst()
                 .get();
     }
@@ -77,8 +76,7 @@ public class ItemController {
 
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Item> read(@PathVariable long id) {
-        Optional<Item> item = Optional.ofNullable(itemService.read(id));
-        return item
+        return itemService.read(id)
                 .map(value -> ResponseEntity.ok().body(value))
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
@@ -93,28 +91,25 @@ public class ItemController {
 
     @PutMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Item> update(@RequestBody Item item, @PathVariable long id) {
-        Optional<Item> updatedItem = itemService.update(item, id);
-        return updatedItem
+        return itemService.update(item, id)
                 .map(value -> ResponseEntity.ok().body(value))
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     @PatchMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Item> patch(@RequestBody Map<String, Object> rodItemUpdates, @PathVariable long id) {
-        Optional<Item> patchedItem = itemService.patch(rodItemUpdates, id);
-        return patchedItem
+        return itemService.patch(rodItemUpdates, id)
                 .map(item -> ResponseEntity.ok().body(item))
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     @DeleteMapping(path = "/{id}")
     public ResponseEntity<?> delete(@PathVariable long id) {
-        itemService.delete(id);
         return itemService.delete(id) ?
                 ResponseEntity.status(HttpStatus.NO_CONTENT).build() : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
-    private int getNumberOfPages(Category cat,int size) {
-        return itemService.getNumberOfItemsInCategory(cat)/size+1;
+    private int getNumberOfPages(Category cat, int size) {
+        return itemService.getNumberOfItemsInCategory(cat) / size + 1;
     }
 }
