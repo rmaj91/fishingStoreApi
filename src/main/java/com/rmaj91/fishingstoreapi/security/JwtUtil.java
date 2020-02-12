@@ -26,14 +26,6 @@ public class JwtUtil {
         return Jwts.parserBuilder().setSigningKey(secretKey.getBytes()).build().parseClaimsJws(token).getBody();
     }
 
-    public String getUsernameFromToken(String token) {
-        return getAllClaimsFromToken(token).getSubject();
-    }
-
-    public Date getExpirationDateFromToken(String token) {
-        return getAllClaimsFromToken(token).getExpiration();
-    }
-
     public String generateToken(User user) {
         List<Role> roles = Arrays.asList(user.getRole());
         Map<String, Object> claims = new HashMap<>();
@@ -50,7 +42,7 @@ public class JwtUtil {
     }
 
     public Boolean isTokenValid(String token) {
-        final Date expiration = getExpirationDateFromToken(token);
+        final Date expiration = getAllClaimsFromToken(token).getExpiration();
         return expiration.after(new Date());
     }
 }

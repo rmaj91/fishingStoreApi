@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Date;
 import java.util.Optional;
 
 @RestController
@@ -51,7 +50,7 @@ public class AuthController {
         String token = jwtUtil.generateToken(userByEmail);
         JwtResponse jwtResponse = JwtResponse.builder()
                 .token(token)
-                .expiredAt(jwtUtil.getExpirationDateFromToken(token))
+                .expiredAt(jwtUtil.getAllClaimsFromToken(token).getExpiration())
                 .build();
         return ResponseEntity.status(HttpStatus.OK).body(jwtResponse);
     }
