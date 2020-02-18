@@ -1,5 +1,6 @@
 package com.rmaj91.fishingstoreapi.store.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rmaj91.fishingstoreapi.store.model.Item;
 import com.rmaj91.fishingstoreapi.store.repository.ItemRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,9 +12,10 @@ import org.mockito.MockitoAnnotations;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -24,6 +26,8 @@ class ItemServiceTest {
 
     @Mock
     private ItemRepository itemRepository;
+    @Mock
+    private ObjectMapper objectMapper;
 
     @InjectMocks
     private ItemService itemService;
@@ -36,83 +40,84 @@ class ItemServiceTest {
 
     @Test
     void create(){
-        // when
         itemService.create(item);
 
-        // then
         verify(itemRepository,times(1)).save(item);
     }
 
     @Test
     void readAll(){
-        // when
         itemService.readAll();
 
-        // then
         verify(itemRepository,times(1)).findAll();
     }
 
     @Test
     void read(){
-        // when
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, (() -> {
-            itemService.read(1L);
-        }));
+        itemService.read(1L);
 
-        // then
-        assertEquals(exception.getMessage(),"No such item with this id");
         verify(itemRepository,times(1)).findById(1L);
     }
 
     @Test
     void whenUpdatesFail(){
-        // when
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, (() -> {
-            itemService.update(item,1L);
-        }));
+        when(itemRepository.findById(1L)).thenReturn(Optional.empty());
+        Optional<Item> updatedItem = itemService.update(item, 1L);
 
-        // then
-        assertEquals(exception.getMessage(),"No such item with this id");
+        assertTrue(updatedItem.isEmpty());
     }
 
     @Test
     void whenUpdateSuccessful(){
-        // given
-        when(itemRepository.existsById(1L)).thenReturn(true);
+        when(itemRepository.findById(1L)).thenReturn(Optional.of(item));
+        when(itemRepository.save(item)).thenReturn(item);
+        Optional<Item> updatedItem = itemService.update(item, 1L);
 
-        // when
-        itemService.update(item,1L);
-
-        // then
-        verify(itemRepository,times(1)).existsById(1L);
         verify(itemRepository,times(1)).save(item);
+        assertTrue(updatedItem.isPresent());
     }
 
     @Test
     void whenPatchFail(){
-        // when
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, (() -> {
-            Map<String, Object> rodItemUpdates = new HashMap<>();
-            itemService.patch(rodItemUpdates,1L);
-        }));
+        Map<String, Object> map = new HashMap<>();
 
-        // then
-        assertEquals(exception.getMessage(),"No such item with this id");
-        verify(itemRepository,times(1)).findById(1L);
+        when(itemRepository.findById(1L)).thenReturn(Optional.empty());
+        Optional<Item> item = itemService.patch(map, 1L);
+
+        assertTrue(item.isEmpty());
     }
 
-    @Disabled
     @Test
     void whenPatchSuccessful(){
+        Map<String, Object> map = new HashMap<>();
+
+        when(itemRepository.findById(1L)).thenReturn(Optional.of(item));
+        when(objectMapper.convertValue(item,Map.class)).thenReturn(map);
+        when(objectMapper.convertValue(map,Item.class)).thenReturn(item);
+        when(itemRepository.save(item)).thenReturn(item);
+        Optional<Item> patchedItem = itemService.patch(map, 1L);
+
+        assertTrue(patchedItem.isPresent());
     }
 
     @Test
-    void delete() {
-        // when
-        itemService.delete(1L);
+    void whenDeleteThenTrue() {
+        Item item = new Item();
+        when(itemRepository.findById(1L)).thenReturn(Optional.of(item));
+        boolean isItemDeleted = itemService.delete(1L);
 
-        // then
-        verify(itemRepository,times(1)).deleteById(1L);
+        verify(itemRepository,times(1)).findById(1L);
+        verify(itemRepository,times(1)).delete(item);
+        assertTrue(isItemDeleted);
+    }
+
+    @Test
+    void whenDeleteThenFalse() {
+        when(itemRepository.findById(1L)).thenReturn(Optional.empty());
+        boolean isItemDeleted = itemService.delete(1L);
+
+        verify(itemRepository,times(1)).findById(1L);
+        assertFalse(isItemDeleted);
     }
 
 
