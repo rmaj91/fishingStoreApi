@@ -9,8 +9,13 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface ItemRepository extends PagingAndSortingRepository<Item,Long> {
+public interface ItemRepository extends PagingAndSortingRepository<Item, Long> {
     List<Item> findByCategory(Category category, Pageable pageable);
+
     List<Item> findByCategory(Category category);
+
+    List<Item> findByCategoryAndNameContainingIgnoreCase(Category category, String name, Pageable pageable);
+
+    List<Item> findByNameContainingIgnoreCase(String name, Pageable pageable);
 
 }

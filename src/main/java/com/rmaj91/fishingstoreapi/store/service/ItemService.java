@@ -67,6 +67,14 @@ public class ItemService {
         return items.size();
     }
 
+    public List<Item> readAllByNameInCategory(String name, Category category, Pageable pageable) {
+        return itemRepository.findByCategoryAndNameContainingIgnoreCase(category, name, pageable);
+    }
+
+    public List<Item> readAllByName(String name, Pageable pageable) {
+        return itemRepository.findByNameContainingIgnoreCase(name, pageable);
+    }
+
     private Item patchItem(Item itemToPatch, Map<String, Object> rodItemUpdates) {
         Map rodItemToUpdateMap = objectMapper.convertValue(itemToPatch, Map.class);
         rodItemUpdates.forEach(rodItemToUpdateMap::put);

@@ -47,9 +47,10 @@ public class ItemController {
         Pageable pageable = PageRequest.of(page, size);
 
         return Arrays.stream(Category.values())
-                .filter(cat -> cat.toString().toLowerCase().equals(category))
+                .filter(searchedCategory -> searchedCategory.toString().toLowerCase().equals(category))
                 .findFirst()
-                .map(cos -> itemService.readAllByCategory(cos, pageable))
+                .map(searchedCategory -> itemService.readAllByCategory(searchedCategory, pageable))
+                .filter(list -> !list.isEmpty())
                 .map(list -> ResponseEntity.ok().body(list))
                 .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
@@ -74,6 +75,27 @@ public class ItemController {
     @GetMapping(path = "/category/all-categories/pages/{size}")
     public int getNumberOfPagesInAllCategories(@PathVariable int size) {
         return itemService.readAll().size() / size + 1;
+    }
+
+    @GetMapping(path = "/category/{category}/name/{name}")
+    public ResponseEntity<List<Item>> searchByNameInCategory(@PathVariable(name = "category") String searchedCategory, @PathVariable String name,
+                                                             @RequestParam int page, @RequestParam int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return Arrays.stream(Category.values())
+                .filter(category -> category.toString().toLowerCase().equals(searchedCategory))
+                .findFirst()
+                .map(category -> itemService.readAllByNameInCategory(name, category, pageable))
+                .filter(list -> !list.isEmpty())
+                .map(list -> ResponseEntity.ok().body(list))
+                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    }
+
+    @GetMapping(path = "/category/all-categories/name/{name}")
+    public ResponseEntity<List<Item>> searchByName(@PathVariable String name, @RequestParam int page, @RequestParam int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        List<Item> items = itemService.readAllByName(name, pageable);
+        return items.isEmpty() ?
+                ResponseEntity.status(HttpStatus.NOT_FOUND).build() : ResponseEntity.ok().body(items);
     }
 
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
