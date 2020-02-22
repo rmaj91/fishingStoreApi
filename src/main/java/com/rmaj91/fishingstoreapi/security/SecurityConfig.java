@@ -18,7 +18,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
-    private JwtUtil jwtUtil;
+    private JwtTokenVerifier jwtTokenVerifier;
 
     @Bean
     public PasswordEncoder passwordEncoder(){
@@ -31,7 +31,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .csrf().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
-                .addFilterBefore(new JwtTokenVerifier(jwtUtil), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtTokenVerifier, UsernamePasswordAuthenticationFilter.class)
                 .authorizeRequests()
                 .antMatchers("/h2-console/**").permitAll()
                 .antMatchers("/admin/**").hasRole(Role.ADMIN.name())
